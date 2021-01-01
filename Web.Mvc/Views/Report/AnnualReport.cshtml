@@ -1,0 +1,141 @@
+﻿
+<link href="~/css/balloon.min.css" rel="stylesheet" />
+<link href="~/css/sb-admin-2.min.css" rel="stylesheet" />
+@*<style>
+    .flex-sm-00-auto ml-sm-3 {
+        display: flex;
+    }
+    .btn btn-gray mr-1 mb-3{
+        margin-left: auto;
+    }
+
+
+</style>*@
+
+<div id="app">
+    <div v-cloak>
+        <!-- Hero -->
+        <div class="container-fluid">
+            <div class="content content-full content-top-custom">
+                <div class="d-flex flex-column flex-sm-row justify-content-sm-between align-items-sm-center">
+                    <h4 class="flex-sm-fill font-size-h2 font-w400 mt-2 mb-0 mb-sm-2"></h4>
+                    <nav class="flex-sm-00-auto ml-sm-3" aria-label="breadcrumb">
+                        <a href="javascript:void(0)" onclick="javascript:history.back();" class="btn btn-gray mr-1 mb-3" style="background:#4e73df;color:white">
+                            <span style="display:block;"><i class="fa fa-fw fa-arrow-circle-left fa-2x" style="color:white"></i></span> Geri
+                        </a>
+                    </nav>
+                </div>
+            </div>
+        </div>
+        <div class="container-fluid">
+            <div class="card shadow mb-4">
+
+                <div class="card-header py-3">
+                    <h4 class="m-0 font-weight-bold text-primary"> Yıllık Rapor</h4>
+                </div>
+                <div class="card-body">
+                    <message v-for="message in config.messages" v-bind:type="message.type" v-bind:content="message.content"></message>
+
+                    <div class="content">
+                        <div class="block block-rounded block-bordered block-fx-shadow">
+                            <div class="block-header block-header-default">
+                                <div class="block-options">
+                                    <div class="block-options-item">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="block-content">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group row">
+                                            <label class="col-sm-3 col-form-label" for="">Yılı Giriniz</label>
+                                            <div class="col-sm-6">
+                                                <input type="number" v-validate="'required'" v-model="config.year" class="form-control" min="2000" />
+                                                <span class="error" v-if="errors.has('startDate')">{{errors.first('startDate')}}</span>
+                                                
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group row text-center">
+                                            <div class="col-md-12">
+                                                <div class="form-group">
+
+                                                    <div class="custom-control custom-radio custom-control-inline custom-control-primary">
+                                                        <input type="radio" class="custom-control-input" id="example-radio-custom-inline5" value="notAssigned" name="example-radio-custom-inline" v-model="config.taskStatusfilterKey">
+                                                        <label class="custom-control-label" for="example-radio-custom-inline5">Acık</label>
+                                                    </div>
+                                                    <div class="custom-control custom-radio custom-control-inline custom-control-primary">
+                                                        <input type="radio" class="custom-control-input" id="example-radio-custom-inline6" value="assigned" name="example-radio-custom-inline" v-model="config.taskStatusfilterKey">
+                                                        <label class="custom-control-label" for="example-radio-custom-inline6">Atanmış</label>
+                                                    </div>
+
+                                                    <div class="custom-control custom-radio custom-control-inline custom-control-primary">
+                                                        <input type="radio" class="custom-control-input" id="example-radio-custom-inline3" value="dissolved" name="example-radio-custom-inline" v-model="config.taskStatusfilterKey">
+                                                        <label class="custom-control-label" for="example-radio-custom-inline3">Çözülmüş</label>
+                                                    </div>
+                                                    <div class="custom-control custom-radio custom-control-inline custom-control-primary">
+                                                        <input type="radio" class="custom-control-input" id="example-radio-custom-inline4" value="completed" name="example-radio-custom-inline" v-model="config.taskStatusfilterKey">
+                                                        <label class="custom-control-label" for="example-radio-custom-inline4">Tamamlandı</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- submit -->
+                                        <div class="form-group row text-center">
+                                            <div class="col-sm-12 ml-auto">
+                                                <button type="button" class="btn btn-primary" v-on:click="onSubmit()">Göster</button>
+                                               
+                                                <export-excel class="btn btn-primary"
+                                                              :data="excelData"
+                                                              :fields="excelTemp"
+                                                              worksheet="Users"
+                                                              name="UserReportExcelFilter.xls"
+                                                              data-balloon="DetayExcel" data-balloon-pos="up">
+
+                                                    <i class="fas fa-file-download"></i>
+
+
+                                                </export-excel>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <table class="table table-bordered" id="reportData" width="100%" cellspacing="0">
+
+                                            <thead class="text-center">
+                                                <tr>
+                                                    <th>#</th>
+                                                    <th>Başlık</th>
+                                                    <th>Topam</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="text-center">
+                                                <tr v-for="(agent,index) in reportData">
+                                                    <th class="text-center" scope="row">{{index+1}}</th>
+                                                    <td>
+                                                        {{agent.Name}}
+                                                    </td>
+                                                    <td>
+                                                        {{agent.Count}}
+                                                    </td>
+
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="~/js/dist/component/report/annualreport.js" asp-append-version="true"></script>

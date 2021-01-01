@@ -1,0 +1,81 @@
+﻿@inject Web.Mvc.Framework.Service.IAppVersionService AppVersionService
+
+@{
+    ViewData["Title"] = "Temsilci Seçimi";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .multiselect__tag, .multiselect__tag::after, .multiselect__option--highlight, .multiselect__option--highlight:after, .multiselect__tag-icon, .multiselect__tag-icon::after {
+        background: #4e73df;
+    }
+</style>
+
+<div id="app">
+    <div class="content">
+        <div class="block block-rounded block-bordered block-fx-shadow">
+            <div class="block-header block-header-default">
+                <h3 class="block-title"></h3>
+                <div class="block-options">
+                    <div class="block-options-item">
+                    </div>
+                </div>
+            </div>
+            <div class="block-content">
+                <message v-for="message in config.messages" v-bind:type="message.type" v-bind:content="message.content"></message>
+                <div class="row ml-4">
+                    <div class="col-lg-7">
+                        <form class="form">
+
+                            <h4 class="content-heading">Temsilci Seçimi</h4>
+
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <hr />
+                                <div class="form-group row">
+                                    <label class="col-sm-3 col-form-label" for="">Firma seçiniz</label>
+                                    <div class="col-sm-9">
+                                        <select class="form-control form-control-alt" v-model="model.CompanyId" v-on:change="getUserForCompany(model.CompanyId)" v-validate="'required'" data-vv-as="Firma" placeholder="Lütfen Seçiniz">
+                                            <option v-bind:value="company.Id" v-for="company in companies.data">{{company.CompanyName}}</option>
+                                        </select>
+
+                                        <span class="error" v-if="errors.has('company')">{{errors.first('company')}}</span>
+                                    </div>
+                                </div>
+                            }
+
+                            <hr />
+                            <div class="form-group row">
+                                <label class="col-sm-3 col-form-label" for="">Temsilci seçiniz</label>
+                                <div class="col-sm-9">
+                                    <multiselect ref="multiSelect" class="form-control form-control-alt" style="border:none" v-model="config.keyFilter" :options="agentList" name="agent" placeholder="Lütfen Seçiniz"
+                                                 select-label="Seç" selected-label="Seçildi" :loading="config.searching"
+                                                 deselect-label="İptal" :searchable="true" :multiple="true">   <span slot="noResult">Sonuç bulunamadı</span>
+                                        <span slot="noOptions">Liste boş</span>
+                                    </multiselect>
+                                </div>
+                            </div>
+
+                            <hr />
+                            <div class="form-group row">
+                                <label class="col-sm-3 col-form-label" for=""></label>
+                                <div class="col-sm-9 m-auto">
+                                    <button type="button" v-on:click="onSubmit" class="btn btn-primary form-control form-control-alt">Kaydet</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var agents = @Html.Raw(ViewBag.Agents);
+    var companies = @Html.Raw(ViewBag.Companies);
+    var model = @Html.Raw(ViewBag.Model);
+</script>
+
+
+<script src="~/js/dist/component/companyUser/agentcustomizing.js" asp-append-version="true"></script>

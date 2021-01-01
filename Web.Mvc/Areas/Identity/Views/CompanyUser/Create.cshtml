@@ -1,0 +1,136 @@
+﻿
+@{
+    ViewData["Title"] = "Firma Kullanıcısı Oluşturma";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div id="app">
+    <div class="content">
+        <div class="block block-rounded block-bordered block-fx-shadow">
+            <div class="block-header block-header-default">
+                <h3 class="block-title"></h3>
+                <div class="block-options">
+                    <div class="block-options-item">
+                    </div>
+                </div>
+            </div>
+            <div class="block-content">
+                <message v-for="message in config.messages" v-bind:type="message.type" v-bind:content="message.content"></message>
+                <div class="row ml-4">
+                    <div class="col-lg-7">
+                        <form class="form">
+
+                            <h4 class="content-heading">Kişisel Bilgiler</h4>
+                            <div class="form-group row">
+                                <label class="col-sm-3 col-form-label" for="">İsim</label>
+                                <div class="col-sm-9">
+                                    <input v-model="companyUserViewModel.UserDto.FirstName" v-validate="'required'" type="text" class="form-control form-control-alt" placeholder="" name="FirstName" data-vv-as="İsim">
+                                    <span class="error" v-if="errors.has('FirstName')">{{errors.first('FirstName')}}</span>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-3 col-form-label" for="">Soyisim</label>
+                                <div class="col-sm-9">
+                                    <input v-model="companyUserViewModel.UserDto.LastName" v-validate="'required'" type="text" class="form-control form-control-alt" placeholder="" name="LastName" data-vv-as="Soyisim">
+                                    <span class="error" v-if="errors.has('LastName')">{{errors.first('LastName')}}</span>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <label class="col-sm-3 col-form-label" for="">TCKN</label>
+                                <div class="col-sm-9">
+
+                                    <input v-model="companyUserViewModel.UserDto.TrIdentityNumber" data-vv-as="TCKN" v-validate="'min:11|max:11'" type="number" class="form-control form-control-alt"
+                                           placeholder="" name="TrIdentityNumber">
+                                    <span class="error" v-if="errors.has('TrIdentityNumber')">{{errors.first('TrIdentityNumber')}}</span>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <label class="col-sm-3 col-form-label" for="">Mobil Telefon</label>
+                                <div class="col-sm-9">
+                                    <input v-model="companyUserViewModel.UserDto.MobileNumber" type="number" class="form-control form-control-alt" placeholder="" name="MobileNumber" data-vv-as="Mobil Telefon">
+                                    <span class="error" v-if="errors.has('MobileNumber')">{{errors.first('MobileNumber')}}</span>
+                                </div>
+                            </div>
+
+                            <hr />
+                            <h4 class="content-heading">Hesap Bilgileri</h4>
+                            <div class="form-group row">
+                                <label class="col-sm-3 col-form-label" for="">Eposta Adresi</label>
+                                <div class="col-sm-9">
+                                    <input v-model="companyUserViewModel.UserDto.Email" v-validate="'required|email'" type="text" class="form-control form-control-alt" placeholder="" name="Email" data-vv-as="Eposta Adresi">
+                                    <span class="error" v-if="errors.has('Email')">{{errors.first('Email')}}</span>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-3 col-form-label" for="">Şifre</label>
+                                <div class="col-sm-9">
+                                    <input v-model="companyUserViewModel.Password" ref="password" v-validate="'required|min:8|verify_password'" type="password" class="form-control form-control-alt" placeholder="" name="Password" data-vv-as="Şifre">
+                                    <span class="error" v-if="errors.has('Password')">{{errors.first('Password')}}</span>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-3 col-form-label" for="">Şifre Doğrulama</label>
+                                <div class="col-sm-9">
+                                    <input v-model="companyUserViewModel.ValidatePassword" v-validate="'required|confirmed:password'" type="password" class="form-control form-control-alt" placeholder="" name="ValidatePassword" data-vv-as="Şifre Doğrulama">
+                                    <span class="error" v-if="errors.has('ValidatePassword')">{{errors.first('ValidatePassword')}}</span>
+                                </div>
+                            </div>
+
+                            <hr />
+                            <h4 class="content-heading">Yetkiler</h4>
+                            <div class="row">
+                                <div class="col-md-6" v-for="role in companyUserViewModel.UserRoles">
+                                    <div class="form-group row">
+                                        <label>
+                                        </label>
+                                        <div class="custom-control custom-checkbox custom-control-primary mb-1">
+                                            <input type="checkbox" class="custom-control-input" v-bind:id="role.DisplayName" v-model="role.Selected">
+                                            <label class="custom-control-label" v-bind:for="role.DisplayName">
+                                                {{role.DisplayName}}
+                                            </label>
+                                            <span class="error" v-if="errors.has('role')">{{errors.first('role')}}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <div id="companySelection" style="display:none">
+                                <hr />
+                                <h4 class="content-heading">Firma Seçimi</h4>
+                                <div class="form-group row">
+                                    <label class="col-sm-3 col-form-label" for="">Firma seçiniz </label>
+                                    <div class="col-sm-9">
+                                        <select class="form-control form-control-alt" v-model="companySelect.Id" v-validate="'required'" data-vv-as="Durum" placeholder="Lütfen Seçiniz">
+                                            <option v-bind:value="company.Id" v-for="company in companies.data">{{company.CompanyName}}</option>
+                                        </select>
+
+                                        <span class="error" v-if="errors.has('company')">{{errors.first('company')}}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+
+
+                            <div class="form-group row">
+                                <label class="col-sm-3 col-form-label" for=""></label>
+                                <div class="col-sm-9 m-auto">
+                                    <button type="button" v-on:click="onSubmit" class="btn btn-primary form-control form-control-alt">Kaydet</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var model = @Html.Raw(ViewBag.Model);
+    var companies = @Html.Raw(ViewBag.Companies);
+    var currentRoles = @Html.Raw(ViewBag.CurrentRoles);
+</script>
+<script src="~/js/dist/component/companyUser/create.js"></script>

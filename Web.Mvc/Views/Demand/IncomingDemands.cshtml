@@ -1,0 +1,125 @@
+﻿
+@{
+    ViewData["Title"] = "Gelen Talepler";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link href="~/css/balloon.min.css" rel="stylesheet" />
+
+<style>
+    table {
+        border-collapse: collapse;
+    }
+
+    th, td {
+        text-align: center;
+        border: 1px solid black;
+        padding: 5px
+    }
+
+    .gfg {
+        border-collapse: separate;
+        border-spacing: 0 15px;
+    }
+    .radioForTask{
+        width:20px;
+        height:20px;
+    }
+</style>
+
+<div id="app">
+    <div v-cloak>
+        <div class="container-fluid">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h4 class="m-0 font-weight-bold text-primary">Gelen Talepler</h4>
+                </div>
+                <div class="card-body">
+
+                    <div class="form-group row">
+                        <div class="col-sm-8">
+                            <div class="form-check form-check-inline ml-3 mr-5">
+                                <input type="radio" class="form-check-input radioForTask" id="notAssigned" value="notAssigned" v-model="config.filterType" v-on:change="getAllDemandsByFilter()" name="radio-inline">
+                                <label class="form-check-label" for="notAssigned">Açık</label>
+                            </div>
+
+                            <div class="form-check form-check-inline mr-5">
+                                <input type="radio" class="form-check-input radioForTask" id="assigned" value="assigned" v-model="config.filterType" v-on:change="getAllDemandsByFilter()" name="radio-inline">
+                                <label class="form-check-label" for="assigned">Atanmış</label>
+                            </div>
+
+                            <div class="form-check form-check-inline mr-5">
+                                <input type="radio" class="form-check-input radioForTask" id="solved" value="solved" v-model="config.filterType" v-on:change="getAllDemandsByFilter()" name="radio-inline">
+                                <label class="form-check-label" for="solved">Çözülmüş</label>
+                            </div>
+
+                            <div class="form-check form-check-inline">
+                                <input type="radio" class="form-check-input radioForTask" id="completed" value="completed" v-model="config.filterType" v-on:change="getAllDemandsByFilter()" name="radio-inline">
+                                <label class="form-check-label" for="completed">Tamamlandı</label>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <select class="form-control form-control-alt" v-model="orderType" v-on:change="getAllDemandsByFilter()" v-validate="'required'" data-vv-as="Aciliyet" placeholder="Lütfen Seçiniz">
+                                <option value="1">Yüksek Aciliyet</option>
+                                <option value="2">Düşük Aciliyet</option>
+                                <option value="3">Uzak Tarihli</option>
+                                <option value="4">Yakın Tarihli</option>
+                            </select>
+                        </div>
+                    </div>
+                
+                    <div class="table-responsive">
+                        <table class="table table-bordered gfg" width="100%" cellspacing="0">
+                            <colgroup>
+                                <col style="width:10%" />
+                                <col style="width:45%" />
+                                <col style="width:15%" />
+                                <col style="width:15%" />
+                            </colgroup>
+                            <thead class="text-center">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Açıklama</th>
+                                    <th>Aciliyet Durumu</th>
+                                    <th>İşlemler</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-center">
+                                <tr v-for="demand in demands" v-bind:class="{'bg-info-light':demand.selected}">
+                                    <th class="text-center" scope="row">{{demand.Id}}</th>
+                                    <td>
+                                        {{demand.Text}} <b>[{{demand.CreateDate | formatDate }}]</b>
+                                    </td>
+                                    <td>
+                                        <div v-for="urgency in urgencies" v-if="urgency.Id === demand.OrderOfUrgencyId">
+                                            @*{{demand.OrderOfUrgencyId}}*@ {{urgency.Title}}
+                                        </div>
+                                    </td>
+                                    <td class="text-center">
+
+                                        <a v-if="config.filterType === 'notAssigned'" class="btn btn-sm btn-primary text-light" v-on:click="assignDemand(demand.Id)" data-balloon="Atama Yap" data-balloon-pos="up"><i class="fas fa-thumbtack"></i></a>
+
+                                        <a v-if="config.filterType === 'assigned'" class="btn btn-sm btn-primary text-light" v-on:click="setDemandAsSolved(demand.Id)" data-balloon="Çözüldü Olarak İşaretle" data-balloon-pos="up"><i class="fas fa-file-code"></i></a>
+
+                                        <a v-if="config.filterType === 'assigned'" class="btn btn-sm btn-primary text-light" v-on:click="cancelDemandAssignment(demand.Id)" data-balloon="Atamayı İptal Et" data-balloon-pos="up"><i class="fa fa-times"></i></a>
+
+                                        <a v-if="config.filterType === 'solved'" class="btn btn-sm btn-primary text-light" v-on:click="setDemandAsCompleted(demand.Id)" data-balloon="Tamamlandı Olarak İşaretle" data-balloon-pos="up"><i class="fas fa-calendar-check"></i></a>
+
+                                        <a v-if="config.filterType === 'completed'" class="btn btn-sm btn-primary text-light"><i class="fas fa-check-square"></i></a>
+
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var urgencies = @Html.Raw(ViewBag.Urgencies);
+</script>
+
+<script src="~/js/dist/component/demand/incomingdemands.js" asp-append-version="true"></script>

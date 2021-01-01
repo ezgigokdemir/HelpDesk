@@ -1,0 +1,74 @@
+﻿
+@{
+    ViewData["Title"] = "Talep Detayları";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div id="app">
+    <div v-cloak class="ml-4">
+       
+        <div class="bg-body-light">
+            <div class="content content-full content-top-custom">
+                <div class="d-flex flex-column flex-sm-row justify-content-sm-between align-items-sm-center">
+                    <h4 class="flex-sm-fill font-size-h2 font-w400 mt-2 mb-0 mb-sm-2">Talep Detayları</h4>
+                    <nav class="flex-sm-00-auto ml-sm-3" aria-label="breadcrumb">
+                        <a href="javascript:void(0)" onclick="javascript:history.back();" class="btn btn-gray mr-1 mb-3" style="background:#4e73df;color:white">
+                            <span style="display:block;"><i class="fa fa-fw fa-arrow-circle-left fa-2x" style="color:white"></i></span> Geri
+                        </a>
+                    </nav>
+                </div>
+            </div>
+        </div>
+       
+        <div class="content mt-5">
+            <div class="block block-rounded block-bordered block-fx-shadow">
+                <div class="block-header block-header-default">
+                    <h5 class="block-title"></h5>
+                    <div class="block-options">
+                        <div class="block-options-item">
+                        </div>
+                    </div>
+                </div>
+                <div class="block-content">
+                    <message v-for="message in config.messages" v-bind:type="message.type" v-bind:content="message.content"></message>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <i class="fa fa-user fa-10x" style="color:#858796"></i>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <table class="table">
+                                <tbody class="text-center">
+                                    <tr>
+                                        <td>Açıklama : {{demand.Text}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div v-for="urgency in urgencies" v-if="urgency.Id === demand.OrderOfUrgencyId">
+                                                Öncelik Sırası : {{urgency.Title}}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+    var demand = @Html.Raw(ViewBag.Demand);
+    var urgencies = @Html.Raw(ViewBag.Urgencies);
+</script>
+
+<script src="~/js/dist/component/demand/detailsofoutgoingdemand.js"></script>

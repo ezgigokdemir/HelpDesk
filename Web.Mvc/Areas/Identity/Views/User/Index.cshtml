@@ -1,0 +1,111 @@
+﻿
+@{
+    ViewData["Title"] = "Sistem Kullanıcıları";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<link href="~/css/balloon.min.css" rel="stylesheet" />
+<link href="~/css/sb-admin-2.min.css" rel="stylesheet" />
+
+<div id="app">
+    <div v-cloak>
+        <div class="container-fluid">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h4 class="m-0 font-weight-bold text-primary">Sistem Kullanıcıları</h4>
+                </div>
+                <div class="card-body">
+                    <message v-for="message in config.messages" v-bind:type="message.type" v-bind:content="message.content"></message>
+
+                    <div class="form-group row">
+                        <div class="col-sm-5"></div>
+                        <div class="col-sm-2">
+                            <select class="form-control form-control-alt" v-model="searchType" data-vv-as="Arama">
+                                <option></option>
+                                <option value="1">ID</option>
+                                <option value="2">İsim</option>
+                                <option value="3">Soyisim</option>
+                                <option value="4">İsim Soyisim</option>
+                                <option value="5">TCKN</option>
+                            </select>
+                        </div>
+                        <div class="col-sm-4">
+                            <input type="text" class="form-control form-control-alt" v-model="searchString" placeholder="Ara..." name="Search" data-vv-as="Arama">
+                            <span class="error" v-if="errors.has('Search')">{{errors.first('Search')}}</span>
+                        </div>
+                        <div class="col-sm-1">
+                            <button class="btn btn-primary" type="button" v-on:click="paginate(1,20)">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                            <colgroup>
+                                <col style="width:10%" />
+                                <col style="width:28%" />
+                                <col style="width:12%" />
+                                <col style="width:10%" />
+                                <col style="width:15%" />
+                                <col style="width:20%" />
+                            </colgroup>
+                            <thead class="text-center">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Adı Soyadı</th>
+                                    <th>TCKN</th>
+                                    <th>E-Mail</th>
+                                    <th>Cep Telefonu</th>
+                                    <th class="text-center">İşlemler</th>
+                                </tr>
+                            </thead>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="9">
+                                        <nav aria-label="Page navigation">
+                                            <ul class="pagination justify-content-end">
+                                                <li class="page-item" v-for="item in tableConfig.pages" v-bind:class="{active : item.active }">
+                                                    <a class="page-link" href="javascript:void(0)" v-if="item.disabled">...</a>
+                                                    <a class="page-link" href="javascript:void(0)" v-if="!item.disabled" v-on:click="paginate(item.pageNumber,item.pageLength)">{{item.pageNumber}}</a>
+                                                </li>
+                                            </ul>
+                                        </nav>
+                                    </td>
+                                </tr>
+                            </tfoot>
+                            <tbody class="text-center">
+                                <tr v-for="(user,index) in tableConfig.data" v-bind:class="{'bg-info-light':user.selected}">
+                                    <th class="text-center" scope="row">{{user.Id}}</th>
+                                    <td>
+                                        {{user.FirstName}} {{user.LastName}}
+                                    </td>
+                                    <td>{{user.TrIdentityNumber}}</td>
+                                    <td>{{user.Email}}</td>
+                                    <td>{{user.MobileNumber}}</td>
+
+                                    <td class="text-center">
+
+                                        <a v-bind:href="'/identity/user/detail/'+ user.Id" class="btn btn-sm btn-primary" data-balloon="Detay" data-balloon-pos="up"><i class="fa fa-file"></i></a>
+                                        @if (User.IsInRole("Admin"))
+                                        {
+                                            <a v-bind:href="'/identity/user/edit/'+ user.Id" class="btn btn-sm btn-primary" data-balloon="Düzenle" data-balloon-pos="up"><i class="fa fa-pencil-alt"></i></a>
+                                            <a v-bind:href="'/identity/user/delete/'+ user.Id" class="btn btn-sm btn-primary" data-balloon="Sil" data-balloon-pos="up"><i class="fa fa-times"></i></a>
+                                        }
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+    var users = @Html.Raw(ViewBag.Users);
+</script>
+
+<script src="~/js/dist/component/user/index.js" asp-append-version="true"></script>

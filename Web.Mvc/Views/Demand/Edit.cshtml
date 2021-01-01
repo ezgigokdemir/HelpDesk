@@ -1,0 +1,76 @@
+﻿
+@{
+    ViewData["Title"] = "Talep Düzenleme";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<div id="app">
+    <div v-cloak class="ml-4">
+
+        <div class="bg-body-light">
+            <div class="content content-full content-top-custom">
+                <div class="d-flex flex-column flex-sm-row justify-content-sm-between align-items-sm-center">
+                    <h4 class="flex-sm-fill font-size-h2 font-w400 mt-2 mb-0 mb-sm-2">Talep Detayları</h4>
+                    <nav class="flex-sm-00-auto ml-sm-3" aria-label="breadcrumb">
+                        <a href="javascript:void(0)" onclick="javascript:history.back();" class="btn btn-gray mr-1 mb-3" style="background:#4e73df;color:white">
+                            <span style="display:block;"><i class="fa fa-fw fa-arrow-circle-left fa-2x" style="color:white"></i></span> Geri
+                        </a>
+                    </nav>
+                </div>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="block block-rounded block-bordered block-fx-shadow">
+                <div class="block-header block-header-default">
+                    <h3 class="block-title"></h3>
+                    <div class="block-options">
+                        <div class="block-options-item">
+                        </div>
+                    </div>
+                </div>
+                <div class="block-content">
+                    <message v-for="message in config.messages" v-bind:type="message.type" v-bind:content="message.content"></message>
+                    <div class="row ml-4">
+                        <div class="col-lg-7">
+                            <form class="form">
+
+                                <h4 class="content-heading">Talep İşlemi</h4>
+                                <div class="form-group row">
+                                    <label class="col-sm-3 col-form-label" for="">Açıklama</label>
+                                    <div class="col-sm-9">
+                                        <textarea v-model="demandDto.Text" v-validate="'required'" type="text" class="form-control form-control-alt" rows="5" placeholder="" name="Description" data-vv-as="Açıklama"></textarea>
+                                        <span class="error" v-if="errors.has('Description')">{{errors.first('Description')}}</span>
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <label class="col-sm-3 col-form-label" for="">Öncelik Durumu</label>
+                                    <div class="col-sm-9">
+                                        <select class="form-control" v-model="demandDto.OrderOfUrgencyId" name="OrderOfUrgencyId" data-vv-as="Aciliyet Durumu" v-validate="'required'">
+                                            <option v-bind:value="order.Id" v-for="order in urgencies">{{order.Title}}</option>
+                                        </select>
+                                        <span class="error" v-if="errors.has('OrderOfUrgencyId')">{{errors.first('OrderOfUrgencyId')}}</span>
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <div class="col-sm-8 ml-auto">
+                                        <button type="button" v-on:click="onSubmit" class="btn btn-primary">Kaydet</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var demandDto = @Html.Raw(ViewBag.Demand);
+    var urgencies = @Html.Raw(ViewBag.Urgencies);
+</script>
+<script src="~/js/dist/component/demand/edit.js" asp-append-version="true"></script>

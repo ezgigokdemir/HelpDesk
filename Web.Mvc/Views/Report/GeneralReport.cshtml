@@ -1,0 +1,170 @@
+﻿
+@{
+    ViewData["Title"] = "GeneralReport";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link href="~/css/balloon.min.css" rel="stylesheet" />
+<link href="~/css/sb-admin-2.min.css" rel="stylesheet" />
+
+<style>
+
+    .multiselect__tag, .multiselect__tag::after, .multiselect__option--highlight, .multiselect__option--highlight:after, .multiselect__tag-icon, .multiselect__tag-icon::after {
+        background: #4e73df;
+    }
+</style>
+
+
+<div id="app">
+    <div v-cloak>
+        <!-- Hero -->
+        <div class="container-fluid">
+            <div class="content content-full content-top-custom">
+                <div class="d-flex flex-column flex-sm-row justify-content-sm-between align-items-sm-center">
+                    <h4 class="flex-sm-fill font-size-h2 font-w400 mt-2 mb-0 mb-sm-2"></h4>
+                    <nav class="flex-sm-00-auto ml-sm-3" aria-label="breadcrumb">
+                        <a href="javascript:void(0)" onclick="javascript:history.back();" class="btn btn-gray mr-1 mb-3" style="background:#4e73df;color:white">
+                            <span style="display:block;"><i class="fa fa-fw fa-arrow-circle-left fa-2x" style="color:white"></i></span> Geri
+                        </a>
+                    </nav>
+                </div>
+            </div>
+        </div>
+        <div class="container-fluid">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h4 class="m-0 font-weight-bold text-primary"> Genel Rapor</h4>
+                </div>
+                <div class="card-body">
+                    <message v-for="message in config.messages" v-bind:type="message.type" v-bind:content="message.content"></message>
+
+                    <div class="content">
+                        <div class="block block-rounded block-bordered block-fx-shadow">
+                            <div class="block-header block-header-default">
+                                <div class="block-options">
+                                    <div class="block-options-item">
+                                    </div>
+                                </div>
+                            </div>
+                                <div class="block-content">
+                                    <div class="row">
+                                        <div class="col-lg-7">
+
+                                            <div class="form-group row">
+                                                <label class="col-sm-4 col-form-label" for="">Başlangıç Tarihi</label>
+                                                <div class="col-sm-8">
+                                                    <date-picker v-model="config.startDate" v-validate="'required'" :lang="config.datepickerLang" format="DD/MM/YYYY" name="startDate" data-vv-as="Başlangıç" asp-for="config.startDate"></date-picker>
+                                                    <span class="error" v-if="errors.has('startDate')">{{errors.first('startDate')}}</span>
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group row">
+                                                <label class="col-sm-4 col-form-label" for="">Bitiş Tarihi</label>
+                                                <div class="col-sm-8">
+                                                    <date-picker v-model="config.endDate" v-validate="'required'" :lang="config.datepickerLang" format="DD/MM/YYYY" name="endDate" data-vv-as="Bitiş" asp-for="config.endDate"></date-picker>
+                                                    <span class="error" v-if="errors.has('endDate')">{{errors.first('endDate')}}</span>
+                                                </div>
+                                            </div>
+
+
+                                            <div class="form-group row">
+                                                <label class="col-sm-4 col-form-label" for="">Yetkili Seciniz</label>
+                                                <div class="col-sm-8">
+                                                    <multiselect ref="multiSelect" v-on:blur="refreshReport" style="border:none" v-model="config.keyFilter" :options="userList" placeholder="Lütfen Seçiniz"
+                                                                 select-label="Seç" selected-label="Seçildi" :loading="config.searching"
+                                                                 deselect-label="İptal" :searchable="true" :multiple="true">
+                                                        <span slot="noResult">Sonuç bulunamadı</span>
+                                                        <span slot="noOptions">Liste boş</span>
+                                                    </multiselect>
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group row">
+                                                <div class="col-md-4">
+                                                </div>
+                                                <div class="col-md-8">
+                                                    <div class="form-group">
+
+                                                        <div class="custom-control custom-radio custom-control-inline custom-control-primary">
+                                                            <input type="radio" class="custom-control-input" id="example-radio-custom-inline5" value="notAssigned" name="example-radio-custom-inline" v-model="config.taskStatusfilterKey">
+                                                            <label class="custom-control-label" for="example-radio-custom-inline5">Acık</label>
+                                                        </div>
+                                                        <div class="custom-control custom-radio custom-control-inline custom-control-primary">
+                                                            <input type="radio" class="custom-control-input" id="example-radio-custom-inline6" value="assigned" name="example-radio-custom-inline" v-model="config.taskStatusfilterKey">
+                                                            <label class="custom-control-label" for="example-radio-custom-inline6">Atanmış</label>
+                                                        </div>
+
+                                                        <div class="custom-control custom-radio custom-control-inline custom-control-primary">
+                                                            <input type="radio" class="custom-control-input" id="example-radio-custom-inline3" value="dissolved" name="example-radio-custom-inline" v-model="config.taskStatusfilterKey">
+                                                            <label class="custom-control-label" for="example-radio-custom-inline3">Çözülmüş</label>
+                                                        </div>
+                                                        <div class="custom-control custom-radio custom-control-inline custom-control-primary">
+                                                            <input type="radio" class="custom-control-input" id="example-radio-custom-inline4" value="completed" name="example-radio-custom-inline" v-model="config.taskStatusfilterKey">
+                                                            <label class="custom-control-label" for="example-radio-custom-inline4">Tamamlandı</label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+
+                                            <div class="form-group row text-center">
+                                                <div class="col-sm-12 ml-auto">
+                                                    <button type="button" v-on:click="onSubmit" class="btn btn-primary">Göster</button>
+                                                    
+                                                    <a type="button" class="btn btn-primary" asp-action="GetAllUserExcelReportData" asp-controller="Report" data-balloon="Tüm Excel" data-balloon-pos="up"><i class="fas fa-file-excel"></i> </a>
+
+
+                                                    <export-excel class="btn btn-primary"
+                                                                  :data="excelData"
+                                                                  :fields="excelTemp"
+                                                                  worksheet="Users"
+                                                                  name="UserReportExcelFilter.xls"
+                                                                  data-balloon="DetayExcel" data-balloon-pos="up">
+
+                                                        <i class="fas fa-file-download"></i>
+
+                                                    </export-excel>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <table class="table table-bordered" id="reportData" width="100%" cellspacing="0">
+                                                <thead class="text-center">
+                                                    <tr>
+                                                        <th class="text-center">#</th>
+                                                        <th class="text-center">Başlık</th>
+                                                        <th class="text-center">Toplam</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody class="text-center">
+                                                    <tr v-for="(data,index) in filteredData">
+                                                        <td class="text-center">{{index+1}}</td>
+                                                        <td class="text-center">{{data.Name}}</td>
+                                                        <td class="text-center">{{data.Count}}</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+
+        var users = @Html.Raw(ViewBag.Users);
+    console.log("users",users)
+</script>
+
+<script src="~/js/dist/component/report/generalreport.js" asp-append-version="true"></script>

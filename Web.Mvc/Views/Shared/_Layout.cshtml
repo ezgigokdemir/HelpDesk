@@ -1,0 +1,313 @@
+﻿@*@using Microsoft.AspNetCore.Identity
+    @using Web.Mvc.Areas.Identity.Data
+    @inject SignInManager<IdentityUser> SignInManager
+    @inject UserManager<IdentityUser> UserManager
+
+    @inject SignInManager<CustomIdentityUser> SignInManager
+    @inject UserManager<CustomIdentityUser> UserManager*@
+
+@inject Web.Mvc.Framework.Service.IAppVersionService AppVersionService
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+
+    <environment include="Development">
+        <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
+    </environment>
+    <environment exclude="Development">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+              asp-fallback-href="~/lib/bootstrap/dist/css/bootstrap.min.css"
+              asp-fallback-test-class="sr-only" asp-fallback-test-property="position" asp-fallback-test-value="absolute"
+              crossorigin="anonymous"
+              integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" />
+    </environment>
+
+    <environment>
+        <script src="~/js/dist/vendors.js" asp-append-version="true"></script>
+    </environment>
+
+    @*<link rel="stylesheet" href="~/css/site.css" />*@
+    <link href="~/theme/assets/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" />
+
+    <!-- Page level plugin CSS-->
+    <link href="~/theme/assets/vendor/datatables/dataTables.bootstrap4.css" rel="stylesheet">
+
+    <!-- Custom styles for this template-->
+    <link href="~/theme/assets/css/sb-admin.css" rel="stylesheet">
+
+    <link href="~/css/sb-admin-2.min.css" rel="stylesheet" />
+</head>
+<body id="page-top">
+    <partial name="_CookieConsentPartial" />
+
+    <nav class="navbar navbar-expand navbar-dark bg-dark static-top">
+
+        <a class="navbar-brand mr-1" href="#">HelpDesk</a>
+
+        <button class="btn btn-link btn-sm text-white order-1 order-sm-0" id="sidebarToggle" href="#">
+            <i class="fas fa-bars"></i>
+        </button>
+
+        <!-- Navbar Search -->
+        <form class="d-none d-md-inline-block form-inline ml-auto mr-0 mr-md-3 my-2 my-md-0">
+            <div class="input-group">
+                @*<input type="text" class="form-control" placeholder="Search for..." aria-label="Search" aria-describedby="basic-addon2">*@
+                <div class="input-group-append">
+                    @*<button class="btn btn-primary" type="button">
+                            <i class="fas fa-search"></i>
+                        </button>*@
+                </div>
+            </div>
+        </form>
+
+        <!-- Navbar -->
+        <ul class="navbar-nav ml-auto ml-md-0">
+            <li class="nav-item dropdown no-arrow">
+                <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <i class="fas fa-user-circle fa-fw"></i>
+                </a>
+                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">
+                    <p class="dropdown-item">@User.Identity.Name</p>
+                    <div class="dropdown-divider"></div>
+                    <form asp-area="Identity" asp-page="/Account/Logout"
+                          asp-route-returnUrl="/home/index"
+                          method="post"
+                          id="logoutForm" class="navbar-right">
+                        <button type="submit" class="dropdown-item"><i class="si si-logout mr-1"></i> Çıkış</button>
+                    </form>
+                    @*<a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">Logout</a>*@
+                </div>
+            </li>
+        </ul>
+    </nav>
+
+    @*<form asp-area="Identity" asp-page="/Account/Logout"
+              asp-route-returnUrl="/home/index"
+              method="post"
+              id="logoutForm" class="navbar-right">
+            <ul class="nav navbar-nav navbar-right">
+
+                <li>
+                    <button type="submit" class="btn btn-link navbar-btn navbar-link"><i class="si si-logout mr-1"></i> Çıkış</button>
+                </li>
+            </ul>
+        </form>*@
+
+    <div id="wrapper">
+
+        <!-- Sidebar -->
+        <ul class="sidebar navbar-nav">
+            <li class="nav-item active">
+                @if (User.IsInRole("Admin") || User.IsInRole("Agent"))
+                {
+                    <a class="nav-link" asp-action="Index" asp-controller="User" asp-area="Identity">
+                        <i class="fas fa-house-damage"></i>
+                        <span>Anasayfa</span>
+                    </a>
+                }
+                else
+                {
+                    <a class="nav-link" asp-action="Index" asp-controller="CompanyUser" asp-area="Identity">
+                        <i class="fas fa-house-damage"></i>
+                        <span>Anasayfa</span>
+                    </a>
+                }
+            </li>
+
+            @if (User.IsInRole("Admin") || User.IsInRole("Agent"))
+            {
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="pagesDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-user"></i>
+                        <span>Kullanıcı İşlemleri</span>
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="pagesDropdown">
+                        <a class="dropdown-item" asp-action="Index" asp-controller="User" asp-area="Identity">Kullanıcı Listesi</a>
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" asp-action="Create" asp-controller="User" asp-area="Identity">Kullanıcı Ekle</a>
+                        }
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="/identity/account/manage/changepassword">Şifre Güncelleme</a>
+                    </div>
+                </li>
+            }
+
+            @if (User.IsInRole("Admin") || User.IsInRole("Agent"))
+            {
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="pagesDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-building"></i>
+                        <span>Firma İşlemleri</span>
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="pagesDropdown">
+                        <a class="dropdown-item" asp-action="Index" asp-controller="Company">Firma Listesi</a>
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" asp-action="Create" asp-controller="Company">Firma Ekle</a>
+                        }
+                    </div>
+                </li>
+            }
+
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="pagesDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <i class="fas fa-user-friends"></i>
+                    <span>Firma Kullanıcı İşlemleri</span>
+                </a>
+                <div class="dropdown-menu" aria-labelledby="pagesDropdown">
+                    <a class="dropdown-item" asp-action="Index" asp-controller="CompanyUser" asp-area="Identity">Firma Kullanıcı Listesi</a>
+                    @if (User.IsInRole("Admin") || User.IsInRole("Company Admin"))
+                    {
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" asp-action="Create" asp-controller="CompanyUser" asp-area="Identity">Firma Kullanıcı Ekle</a>
+                    }
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="/identity/account/manage/changepassword">Şifre Güncelleme</a>
+                </div>
+            </li>
+
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="pagesDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <i class="fas fa-tasks"></i>
+                    <span>Talep İşlemleri</span>
+                </a>
+                <div class="dropdown-menu" aria-labelledby="pagesDropdown">
+                    @*<a class="dropdown-item" asp-action="Index" asp-controller="Demand">Talep Listesi</a>*@
+                    @if (User.IsInRole("Admin") || User.IsInRole("Company Admin") || User.IsInRole("Company User"))
+                    {
+                        @*<div class="dropdown-divider"></div>*@
+                        <a class="dropdown-item" asp-action="CreateDemand" asp-controller="Demand">Talep Ekle</a>
+
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" asp-action="OutgoingDemandsByUser" asp-controller="Demand">Giden Taleplerim</a>
+
+                        @if (User.IsInRole("Admin") || User.IsInRole("Company Admin"))
+                        {
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" asp-action="OutgoingDemands" asp-controller="Demand">Giden Tüm Talepler</a>
+
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" asp-action="AgentCustomizing" asp-controller="Demand">Temsilci Seçimi</a>
+                            <div class="dropdown-divider"></div>
+                        }
+                    }
+
+                    @if (User.IsInRole("Admin") || User.IsInRole("Agent"))
+                    {
+
+                        <a class="dropdown-item" asp-action="IncomingDemands" asp-controller="Demand">Gelen Talepler</a>
+                    }
+                </div>
+            </li>
+
+            @if (User.IsInRole("Admin"))
+            {
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="pagesDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="far fa-chart-bar"></i>
+                        <span>Raporlar</span>
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="pagesDropdown">
+                        <a class="dropdown-item" asp-action="GeneralReport" asp-controller="Report">Genel Raporlar</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" asp-action="MonthlyReport" asp-controller="Report">Aylık Raporlar</a>
+
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" asp-action="AnnualReport" asp-controller="Report">Yıllık Raporlar</a>
+                    </div>
+                </li>
+            }
+
+            @*<li class="nav-item">
+                    <a class="nav-link" href="charts.html">
+                        <i class="fas fa-fw fa-chart-area"></i>
+                        <span>Charts</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="tables.html">
+                        <i class="fas fa-fw fa-table"></i>
+                        <span>Tables</span>
+                    </a>
+                </li>*@
+        </ul>
+
+        <div id="content-wrapper">
+
+            <div class="container-fluid">
+                <partial name="_CookieConsentPartial" />
+                <main role="main" class="pb-3">
+                    @RenderBody()
+                </main>
+            </div>
+
+            <!-- /.container-fluid -->
+            <!-- Sticky Footer -->
+            <footer class="sticky-footer">
+                <div class="container my-auto">
+                    <div class="copyright text-center my-auto">
+                        <span>&copy; 2019 - Web.Mvc - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a></span>
+                    </div>
+                </div>
+            </footer>
+        </div>
+        <!-- /.content-wrapper -->
+    </div>
+    <!-- /#wrapper -->
+    <!-- Scroll to Top Button-->
+    <a class="scroll-to-top rounded" href="#page-top">
+        <i class="fas fa-angle-up"></i>
+    </a>
+
+    <!-- Logout Modal-->
+    <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+                    <a class="btn btn-primary" href="login.html">Logout</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <environment include="Development">
+        <script src="~/lib/jquery/dist/jquery.js"></script>
+        <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.js"></script>
+    </environment>
+    <environment exclude="Development">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"
+                asp-fallback-src="~/lib/jquery/dist/jquery.min.js"
+                asp-fallback-test="window.jQuery"
+                crossorigin="anonymous"
+                integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=">
+        </script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.bundle.min.js"
+                asp-fallback-src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"
+                asp-fallback-test="window.jQuery && window.jQuery.fn && window.jQuery.fn.modal"
+                crossorigin="anonymous"
+                integrity="sha384-xrRywqdh3PHs8keKZN+8zzc5TX0GRTLCcmivcbNJWm2rs5C8PRhcEn3czEjhAO9o">
+        </script>
+    </environment>
+    @*<script src="~/js/site.js" asp-append-version="true"></script>*@
+
+    <!-- Custom scripts for all pages-->
+    <script src="~/theme/assets/js/sb-admin.js" asp-append-version="true"></script>
+
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

@@ -1,0 +1,94 @@
+﻿
+@{
+    ViewData["Title"] = "Giden Tüm Talepler";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link href="~/css/balloon.min.css" rel="stylesheet" />
+<link href="~/css/sb-admin-2.min.css" rel="stylesheet" />
+
+<div id="app">
+    <div v-cloak>
+        <div class="container-fluid">
+
+            <!-- DataTales Example -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h4 class="m-0 font-weight-bold text-primary">Giden Tüm Talepler</h4>
+                </div>
+                <div class="card-body">
+                    <message v-for="message in config.messages" v-bind:type="message.type" v-bind:content="message.content"></message>
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                            <colgroup>
+                                <col style="width:8%" />
+                                <col style="width:30%" />
+                                <col style="width:10%" />
+                                <col style="width:12%" />
+                                <col style="width:10%" />
+                            </colgroup>
+                            <thead class="text-center">
+                                <tr>
+                                    <th class="text-center">#</th>
+                                    <th>Açıklama</th>
+                                    <th>Aciliyet Durumu</th>
+                                    <th>Talebin Yapılma Durumu</th>
+                                    <th class="text-center">İşlemler</th>
+                                </tr>
+                            </thead>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="9">
+                                        <nav aria-label="Page navigation">
+                                            <ul class="pagination justify-content-end">
+                                                <li class="page-item" v-for="item in tableConfig.pages" v-bind:class="{active : item.active }">
+                                                    <a class="page-link" href="javascript:void(0)" v-if="item.disabled">...</a>
+                                                    <a class="page-link" href="javascript:void(0)" v-if="!item.disabled" v-on:click="paginate(item.pageNumber,item.pageLength)">{{item.pageNumber}}</a>
+                                                </li>
+                                            </ul>
+                                        </nav>
+                                    </td>
+                                </tr>
+                            </tfoot>
+                            <tbody class="text-center">
+                                <tr v-for="(demand,index) in tableConfig.data" v-bind:class="{'bg-info-light':demand.selected}">
+                                    <th class="text-center" scope="row">{{demand.Id}}</th>
+                                    <td>
+                                        {{demand.Text}}
+                                    </td>
+                                    <td>
+                                        <div v-for="urgency in urgencies" v-if="urgency.Id === demand.OrderOfUrgencyId">
+                                            @*{{demand.OrderOfUrgencyId}}*@ {{urgency.Title}}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div v-if="demand.IsAccepted !== true">Talebin ataması yapılmadı.</div>
+                                        <div v-if="demand.IsAccepted === true && demand.IsDissolved !== true && demand.IsCompleted !== true">Talebin ataması yapıldı.</div>
+                                        <div v-if="demand.IsAccepted  === true && demand.IsDissolved === true && demand.IsCompleted === true ">Talep çözüldü.</div>
+                                    </td>
+                                    <td class="text-center">
+
+                                        <a v-bind:href="'/demand/detailsofoutgoingdemand/'+ demand.Id" class="btn btn-sm btn-primary" data-balloon="Detay" data-balloon-pos="up"><i class="fa fa-file"></i></a>
+                                        <a v-bind:href="'/demand/edit/'+ demand.Id" class="btn btn-sm btn-primary" data-balloon="Düzenle" data-balloon-pos="up"><i class="fa fa-pencil-alt"></i></a>
+
+                                        @if (User.IsInRole("Admin") || User.IsInRole("Company Admin"))
+                                        {
+                                            <a v-bind:href="'/demand/delete/'+ demand.Id" class="btn btn-sm btn-primary" data-balloon="Sil" data-balloon-pos="up"><i class="fa fa-times"></i></a>
+                                        }
+
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var urgencies = @Html.Raw(ViewBag.Urgencies);
+</script>
+
+<script src="~/js/dist/component/demand/outgoingdemands.js" asp-append-version="true"></script>
